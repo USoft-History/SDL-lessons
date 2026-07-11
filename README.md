@@ -16,7 +16,7 @@
 # Содержание
 [Lesson 0 - Getting Started](Lesson%200%20-%20Getting%20Started)
 
-[Lesson 1 — Application Loop Fundamentals](Lesson%201%20-%20Application%20Loop%20Fundamentals/README.md)
+[Lesson 1 — Application Loop Fundamentals](Lesson%201%20-%20Application%20Loop%20Fundamentals)
 
 [Lesson 2 — Basic 2D Rendering](Lesson%202%20-%20Basic%202D%20Rendering)
 
