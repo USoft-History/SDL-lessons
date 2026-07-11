@@ -15,9 +15,13 @@
 
 # Содержание
 [Lesson 0 - Getting Started](https://github.com/USoft-History/SDL-lessons/blob/main/Lesson%200%20-%20Getting%20Started/README.md)
+
 Lesson 1 — Application Loop Fundamentals
+
 Lesson 2 — Basic 2D Rendering
+
 Lesson 3 — Input Handling
+
 Lesson 4 — Textures and Images
 
 # Ресурсы
