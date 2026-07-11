@@ -14,15 +14,15 @@
 Курс ориентирован на начинающих разработчиков, которые хотят изучить SDL2 и познакомиться с разработкой Homebrew-приложений для PlayStation 2.
 
 # Содержание
-[Lesson 0 - Getting Started](https://github.com/USoft-History/SDL-lessons/blob/main/Lesson%200%20-%20Getting%20Started/README.md)
+[Lesson 0 - Getting Started](Lesson%200%20-%20Getting%20Started)
 
-Lesson 1 — Application Loop Fundamentals
+[Lesson 1 — Application Loop Fundamentals](Lesson%201%20-%20Application%20Loop%20Fundamentals/README.md)
 
-Lesson 2 — Basic 2D Rendering
+[Lesson 2 — Basic 2D Rendering](Lesson%202%20-%20Basic%202D%20Rendering)
 
-Lesson 3 — Input Handling
+[Lesson 3 — Input Handling](Lesson%203%20-%20Input%20Handling)
 
-Lesson 4 — Textures and Images
+[Lesson 4 — Textures and Images](Lesson%204%20-%20Textures%20and%20Images)
 
 # Ресурсы
 
