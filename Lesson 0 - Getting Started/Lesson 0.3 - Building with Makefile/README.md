@@ -17,7 +17,7 @@
 ## Структура проекта
 
 ```
-sdl2-tutorial/
+sdl2-app-skeleton/
 ├── bin/
 ├── src/
 │   └── main.c
