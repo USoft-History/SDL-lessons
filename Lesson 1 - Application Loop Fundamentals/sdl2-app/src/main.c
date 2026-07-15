@@ -9,6 +9,8 @@
 #define SCREEN_HEIGHT 1080
 #endif
 
+const char *const WINDOW_TITLE = "SDL2 Lesson 1";
+
 int main(int argc, char *argv[])
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -20,7 +22,7 @@ int main(int argc, char *argv[])
 
 #ifdef PLATFORM_PS2
   SDL_Window *window = SDL_CreateWindow(
-      "SDL2 Lesson 1",
+      WINDOW_TITLE,
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
       SCREEN_WIDTH,
@@ -49,7 +51,7 @@ int main(int argc, char *argv[])
 #else
 
   SDL_Window *window = SDL_CreateWindow(
-      "SDL2 Lesson 1",
+      WINDOW_TITLE,
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
       SCREEN_WIDTH,
