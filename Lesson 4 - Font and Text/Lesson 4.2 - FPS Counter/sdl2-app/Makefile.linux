@@ -1,0 +1,13 @@
+CC = gcc
+
+CFLAGS = -O2 -Wall -DPLATFORM_LINUX `sdl2-config --cflags`
+LDFLAGS = `sdl2-config --libs` -lSDL2_ttf
+
+SRC = src/main.c
+OUT = bin/game_linux
+
+all:
+	$(CC) $(CFLAGS) $(SRC) -o $(OUT) $(LDFLAGS)
+
+clean:
+	rm -f $(OUT)

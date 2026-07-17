@@ -11,7 +11,7 @@
 #define SCREEN_HEIGHT 1080
 #endif
 
-const char *const WINDOW_TITLE = "SDL2 Lesson 4";
+const char *const WINDOW_TITLE = "Lesson 4.2 - FPS Counter";
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +26,8 @@ int main(int argc, char *argv[])
   {
     SDL_Log("TTF_Init FAILED: %s\n", TTF_GetError());
 
+    SDL_Quit();
+    
     return 1;
   }
 
@@ -33,6 +35,11 @@ int main(int argc, char *argv[])
   if (!mediumFont)
   {
     SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
+
+    TTF_Quit();
+    SDL_Quit();
+
+    return 1;
   }
 
 #ifdef PLATFORM_PS2
@@ -103,21 +110,33 @@ int main(int argc, char *argv[])
 
   SDL_Color white = {255, 255, 255, 255};
 
-  SDL_Surface *textSurface =
-      TTF_RenderUTF8_Blended(mediumFont, "Hello World!", white);
+  int frameCount = 0;
+  int fps = 0;
 
-  SDL_Texture *textTexture =
+  Uint32 lastFPSUpdate = SDL_GetTicks();
+
+  char fpsText[64];
+
+  snprintf(fpsText, sizeof(fpsText), "FPS: %d", fps);
+
+  SDL_Surface *fpsSurface =
+      TTF_RenderUTF8_Blended(
+          mediumFont,
+          fpsText,
+          white);
+
+  SDL_Texture *fpsTexture =
       SDL_CreateTextureFromSurface(
           renderer,
-          textSurface);
+          fpsSurface);
 
-  SDL_Rect textRect = {
-      (SCREEN_WIDTH - textSurface->w) / 2,
-      (SCREEN_HEIGHT - textSurface->h) / 2,
-      textSurface->w,
-      textSurface->h};
+  SDL_Rect fpsRect = {
+      (SCREEN_WIDTH - fpsSurface->w) / 2,
+      (SCREEN_HEIGHT - fpsSurface->h) / 2,
+      fpsSurface->w,
+      fpsSurface->h};
 
-  SDL_FreeSurface(textSurface);
+  SDL_FreeSurface(fpsSurface);
 
   bool running = true;
 
@@ -133,21 +152,73 @@ int main(int argc, char *argv[])
       }
     }
 
+    frameCount++;
+
+    Uint32 currentTime = SDL_GetTicks();
+
+    if (currentTime - lastFPSUpdate >= 1000)
+    {
+      fps = frameCount;
+      frameCount = 0;
+      lastFPSUpdate = currentTime;
+
+      snprintf(
+          fpsText,
+          sizeof(fpsText),
+          "FPS: %d",
+          fps);
+
+      SDL_Surface *newSurface =
+          TTF_RenderUTF8_Blended(
+              mediumFont,
+              fpsText,
+              white);
+
+      if (!newSurface)
+      {
+        SDL_Log("TTF_RenderUTF8_Blended error: %s",
+                TTF_GetError());
+      }
+      else
+      {
+
+        SDL_DestroyTexture(fpsTexture);
+
+        fpsTexture =
+            SDL_CreateTextureFromSurface(
+                renderer,
+                newSurface);
+
+        fpsRect.w = newSurface->w;
+        fpsRect.h = newSurface->h;
+
+        fpsRect.x =
+            (SCREEN_WIDTH - fpsRect.w) / 2;
+
+        fpsRect.y =
+            (SCREEN_HEIGHT - fpsRect.h) / 2;
+
+        SDL_FreeSurface(newSurface);
+      }
+    }
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+    SDL_RenderCopy(renderer, fpsTexture, NULL, &fpsRect);
 
     SDL_RenderPresent(renderer);
   }
 
-  SDL_DestroyTexture(textTexture);
+  if (fpsTexture)
+    SDL_DestroyTexture(fpsTexture);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 
   TTF_CloseFont(mediumFont);
 
+  TTF_Quit();
   SDL_Quit();
 
   return 0;
