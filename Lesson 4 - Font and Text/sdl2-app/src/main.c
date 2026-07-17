@@ -1,7 +1,7 @@
-
 #include <stdbool.h>
+
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #ifdef PLATFORM_PS2
 #define SCREEN_WIDTH 640
@@ -11,41 +11,7 @@
 #define SCREEN_HEIGHT 1080
 #endif
 
-const char *const WINDOW_TITLE = "SDL2 Lesson 3";
-
-SDL_Texture *LoadBMP(SDL_Renderer *renderer, const char *imagePath)
-{
-  SDL_Surface *surface = SDL_LoadBMP(imagePath);
-  if (!surface)
-  {
-    SDL_Log("Failed to load bmp: %s", SDL_GetError());
-
-    return NULL;
-  }
-
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-  SDL_FreeSurface(surface);
-
-  return texture;
-}
-
-SDL_Texture *LoadImage(SDL_Renderer *renderer, const char *imagePath)
-{
-  SDL_Surface *surface = IMG_Load(imagePath);
-  if (!surface)
-  {
-    SDL_Log("Failed to load image: %s", SDL_GetError());
-
-    return NULL;
-  }
-
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-  SDL_FreeSurface(surface);
-
-  return texture;
-}
+const char *const WINDOW_TITLE = "SDL2 Lesson 4";
 
 int main(int argc, char *argv[])
 {
@@ -54,6 +20,19 @@ int main(int argc, char *argv[])
     SDL_Log("SDL Init Error: %s", SDL_GetError());
 
     return 1;
+  }
+
+  if (TTF_Init() == -1)
+  {
+    SDL_Log("TTF_Init FAILED: %s\n", TTF_GetError());
+
+    return 1;
+  }
+
+  TTF_Font *mediumFont = TTF_OpenFont("assets/font.ttf", 24);
+  if (!mediumFont)
+  {
+    SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
   }
 
 #ifdef PLATFORM_PS2
@@ -122,21 +101,23 @@ int main(int argc, char *argv[])
 
 #endif
 
-  SDL_Texture *fullHeartTexture = LoadBMP(renderer, "assets/heart-full.bmp");
-  if (!fullHeartTexture)
-    return -1;
+  SDL_Color white = {255, 255, 255, 255};
 
-  // LOAD PNG
-  SDL_Surface *emptyHeartSurface = IMG_Load("assets/heart-empty.png");
-  if (!emptyHeartSurface)
-  {
-    SDL_Log("Failed to load image: %s", SDL_GetError());
+  SDL_Surface *textSurface =
+      TTF_RenderUTF8_Blended(mediumFont, "Hello World!", white);
 
-    return -1;
-  }
+  SDL_Texture *textTexture =
+      SDL_CreateTextureFromSurface(
+          renderer,
+          textSurface);
 
-  SDL_Texture *emptyHeartTexture = SDL_CreateTextureFromSurface(renderer, emptyHeartSurface);
-  SDL_FreeSurface(emptyHeartSurface);
+  SDL_Rect textRect = {
+      (SCREEN_WIDTH - textSurface->w) / 2,
+      (SCREEN_HEIGHT - textSurface->h) / 2,
+      textSurface->w,
+      textSurface->h};
+
+  SDL_FreeSurface(textSurface);
 
   bool running = true;
 
@@ -155,20 +136,17 @@ int main(int argc, char *argv[])
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_Rect dstRect1 = {10, 10, 64, 64};
-    SDL_RenderCopy(renderer, fullHeartTexture, NULL, &dstRect1);
-
-    SDL_Rect dstRect2 = {SCREEN_WIDTH - 74, 10, 64, 64};
-    SDL_RenderCopy(renderer, emptyHeartTexture, NULL, &dstRect2);
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
     SDL_RenderPresent(renderer);
   }
 
-  SDL_DestroyTexture(fullHeartTexture);
-  SDL_DestroyTexture(emptyHeartTexture);
+  SDL_DestroyTexture(textTexture);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+
+  TTF_CloseFont(mediumFont);
 
   SDL_Quit();
 
