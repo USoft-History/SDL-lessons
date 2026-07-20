@@ -44,6 +44,8 @@ static const PadButtonInfo padButtons[] = {
     {PAD_SELECT, "SELECT"},
 };
 
+static u16 previousBtns = 0;
+
 void initPadDrivers()
 {
   SDL_Log("initPadDrivers()");
@@ -66,11 +68,15 @@ void pollEvent(TextLabel *label, SDL_Renderer *renderer)
 
   if (padRead(0, 0, &buttons) > 0)
   {
+
     u16 btns = ~buttons.btns;
+    u16 pressed = btns & ~previousBtns;
+
+    previousBtns = btns;
 
     for (size_t i = 0; i < sizeof(padButtons) / sizeof(padButtons[0]); i++)
     {
-      if (btns & padButtons[i].code)
+      if (pressed & padButtons[i].code)
       {
         char text[64];
 
@@ -182,6 +188,8 @@ int main(int argc, char *argv[])
     TextLabel_Render(renderer, &keyCodeLabel);
 
     SDL_RenderPresent(renderer);
+
+    SDL_Delay(16); // ~60 FPS
   }
 
   TextLabel_Destroy(&keyCodeLabel);
