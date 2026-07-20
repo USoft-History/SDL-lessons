@@ -1,4 +1,4 @@
-# Lesson 4.2 - PlayStation 2 Controller Input
+# Lesson 5.2 - PlayStation 2 Controller Input
 
 В этом уроке мы научимся работать с контроллером PlayStation 2 через библиотеку **libpad** из состава PS2SDK.
 

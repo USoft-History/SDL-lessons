@@ -29,7 +29,9 @@ static void TextLabel_UpdatePosition(TextLabel *label)
     }
 }
 
-void TextLabel_Create(TextLabel *label, SDL_Renderer *renderer)
+void TextLabel_Create(
+    TextLabel *label,
+    SDL_Renderer *renderer)
 {
     SDL_Surface *surface =
         TTF_RenderUTF8_Blended(
