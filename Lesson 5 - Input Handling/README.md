@@ -6,3 +6,7 @@
 
 [Lesson 5.2 - PlayStation 2 Controller Input](Lesson%205.2%20-%20PlayStation%202%20Controller%20Input)
 
+[Lesson 5.3 - Moving Square](Lesson%205.2%20-%20PlayStation%202%20Controller%20Input)
+
+[Lesson 5.4 - Cross-Platform Input System (En)](Lesson%205.2%20-%20PlayStation%202%20Controller%20Input) [(Ru)](Lesson%205.2%20-%20PlayStation%202%20Controller%20Input) 
+
