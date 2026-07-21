@@ -1,28 +1,28 @@
 # Lesson 5.4 — Cross-Platform Input System
 
-In previous lessons, we learned how to handle keyboard input on PC and controller input on PlayStation 2. However, the game code still depended on the specific platform.
+В предыдущих уроках мы научились обрабатывать ввод с клавиатуры на ПК и с геймпада PlayStation 2. Однако игровой код всё ещё зависел от конкретной платформы.
 
-In this lesson, we will create a unified **Input System** that allows the game to receive input from different devices through a common interface.
+В этом уроке мы создадим единый слой ввода (**Input System**), который позволит получать данные от клавиатуры и геймпада через общий интерфейс.
 
-After completing this lesson, the game code will no longer need to know whether the input comes from a keyboard, gamepad, or another platform.
-
----
-
-## What You Will Learn
-
-* Creating a custom input layer
-* Abstracting platform-specific code
-* Working with an input state structure
-* Supporting multiple simultaneous button presses
-* Organizing a project for multiple platforms
+После завершения урока игровой код больше не будет знать, откуда пришёл ввод — с клавиатуры, геймпада или другой платформы.
 
 ---
 
-# Step 1. Create an Input State Structure
+## Что изучим
 
-Create a file called `input.h`.
+* создание собственного слоя ввода;
+* абстракцию платформозависимого кода;
+* работу со структурой состояния ввода;
+* поддержку нескольких нажатых кнопок одновременно;
+* организацию проекта для нескольких платформ.
 
-Instead of processing individual events directly, we will store the current state of all buttons in a structure.
+---
+
+# Шаг 1. Создаём структуру состояния ввода
+
+Создадим файл `input.h`.
+
+Вместо обработки отдельных событий будем хранить текущее состояние кнопок в структуре.
 
 ```c
 typedef struct
@@ -37,35 +37,35 @@ typedef struct
 } InputState;
 ```
 
-This structure describes player actions rather than specific keyboard keys or gamepad buttons.
+Такая структура описывает действия игрока, а не конкретные клавиши или кнопки геймпада.
 
 ---
 
-# Step 2. Add the Input System Interface
+# Шаг 2. Добавляем интерфейс системы ввода
 
-In the same file, declare the following functions:
+В том же файле объявим функции:
 
 ```c
 int Input_Init();
 void Input_Poll(InputState *input);
 ```
 
-Function responsibilities:
+Назначение функций:
 
-* `Input_Init()` — initializes the input system
-* `Input_Poll()` — updates the current input state
+* `Input_Init()` — инициализация системы ввода;
+* `Input_Poll()` — обновление состояния кнопок.
 
 ---
 
-# Step 3. Implement Input for PC
+# Шаг 3. Реализуем ввод для ПК
 
-Create the file:
+Создадим файл:
 
 ```text
 src/input_pc.c
 ```
 
-This implementation will use SDL keyboard input.
+Реализация будет использовать SDL-клавиатуру.
 
 ```c
 int Input_Init()
@@ -74,13 +74,13 @@ int Input_Init()
 }
 ```
 
-Get the current keyboard state:
+Получаем текущее состояние клавиш:
 
 ```c
 const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
 ```
 
-Fill the input structure:
+Заполняем структуру:
 
 ```c
 input->up = keyboard[SDL_SCANCODE_W] ||
@@ -96,7 +96,7 @@ input->right = keyboard[SDL_SCANCODE_D] ||
                keyboard[SDL_SCANCODE_RIGHT];
 ```
 
-Use the Escape key to exit:
+Для выхода используем:
 
 ```c
 input->quit = keyboard[SDL_SCANCODE_ESCAPE];
@@ -104,15 +104,15 @@ input->quit = keyboard[SDL_SCANCODE_ESCAPE];
 
 ---
 
-# Step 4. Implement Input for PlayStation 2
+# Шаг 4. Реализуем ввод для PlayStation 2
 
-Create the file:
+Создадим файл:
 
 ```text
 src/input_ps2.c
 ```
 
-Initialize the controller drivers:
+Инициализируем драйверы контроллера:
 
 ```c
 SifInitRpc(0);
@@ -123,19 +123,19 @@ SifLoadModule("rom0:PADMAN", 0, NULL);
 padInit(0);
 ```
 
-Open the controller port:
+Открываем порт контроллера:
 
 ```c
 padPortOpen(0, 0, padBuf);
 ```
 
-Read the controller state:
+Получаем состояние кнопок:
 
 ```c
 padRead(0, 0, &buttons);
 ```
 
-Fill the input structure:
+Заполняем структуру ввода:
 
 ```c
 input->up = btns & PAD_UP;
@@ -149,23 +149,23 @@ input->fire = btns & PAD_CROSS;
 
 ---
 
-# Step 5. Use the Input System in the Game
+# Шаг 5. Используем систему ввода в игре
 
-Now the game code no longer knows anything about the underlying platform.
+Теперь игровой код ничего не знает о платформе.
 
-Create an input state:
+Создаём состояние ввода:
 
 ```c
 InputState input = {0};
 ```
 
-Update it:
+Обновляем его:
 
 ```c
 Input_Poll(&input);
 ```
 
-Move the object:
+Двигаем объект:
 
 ```c
 if (input.up)
@@ -181,7 +181,7 @@ if (input.right)
     rect.x += MOVE_SPEED;
 ```
 
-Exit the application:
+Выход из программы:
 
 ```c
 if (input.quit)
@@ -190,9 +190,9 @@ if (input.quit)
 
 ---
 
-# Step 6. Support Multiple Simultaneous Inputs
+# Шаг 6. Поддержка нескольких нажатий одновременно
 
-Previously, the input function returned only a single action:
+Ранее функция возвращала только одно действие:
 
 ```c
 INPUT_UP
@@ -201,50 +201,50 @@ INPUT_LEFT
 INPUT_RIGHT
 ```
 
-Because of this limitation, it was impossible to process multiple buttons at the same time.
+Из-за этого невозможно было обрабатывать несколько кнопок одновременно.
 
-For example:
+Например:
 
 ```text
 UP + LEFT
 ```
 
-did not work correctly.
+работало некорректно.
 
-Now each button has its own state:
+Теперь состояние каждой кнопки хранится отдельно:
 
 ```c
 input.up
 input.left
 ```
 
-This allows multiple buttons to be pressed simultaneously.
+Поэтому можно нажимать сразу несколько кнопок.
 
-Examples:
+Например:
 
 ```text
 W + D
 ```
 
-or
+или
 
 ```text
 UP + LEFT
 ```
 
-The rectangle will move diagonally.
+Квадрат будет двигаться по диагонали.
 
 ---
 
-# Step 7. Center the Object on Screen
+# Шаг 7. Центрируем объект
 
-Instead of using fixed coordinates:
+Вместо фиксированных координат:
 
 ```c
 SDL_Rect rect = {350, 250, 200, 100};
 ```
 
-we can calculate the position automatically:
+можно вычислять позицию автоматически:
 
 ```c
 SDL_Rect rect =
@@ -256,11 +256,11 @@ SDL_Rect rect =
 };
 ```
 
-Now the object will always appear in the center of the screen regardless of the resolution.
+Теперь объект окажется по центру экрана независимо от разрешения.
 
 ---
 
-# Project Structure
+# Структура проекта
 
 ```text
 src/
@@ -272,16 +272,16 @@ src/
 
 ---
 
-# Result
+# Результат
 
-In this lesson, we created a custom cross-platform input system.
+В результате урока мы создали собственную кроссплатформенную систему ввода.
 
-The game code now works the same way on:
+Теперь игровой код работает одинаково на:
 
-* Linux
-* Windows
-* PlayStation 2
+* Linux;
+* Windows;
+* PlayStation 2.
 
-All platform-specific logic is hidden inside the input system implementation, while the game itself uses a single, unified interface.
+Вся платформозависимая логика скрыта внутри файлов системы ввода, а основной код игры использует единый интерфейс.
 
-This is an important step toward building a proper game engine architecture.
+Это важный шаг к созданию полноценной архитектуры игрового движка.
