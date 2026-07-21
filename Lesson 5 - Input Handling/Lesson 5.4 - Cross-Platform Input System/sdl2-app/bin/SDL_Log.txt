@@ -1,0 +1,15 @@
+INFO: initPadDrivers()
+INFO: initPadDrivers(): OK
+INFO: initPadDrivers()
+INFO: initPadDrivers(): OK
+INFO: initPadDrivers()
+INFO: initPadDrivers(): OK
+INFO: initPadDrivers()
+INFO: initPadDrivers(): OK
+INFO: pressed
+INFO: pressed
+INFO: pressed
+INFO: initPadDrivers()
+INFO: initPadDrivers(): OK
+INFO: initPadDrivers()
+INFO: initPadDrivers(): OK
