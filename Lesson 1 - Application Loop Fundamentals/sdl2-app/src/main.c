@@ -13,7 +13,7 @@ const char *const WINDOW_TITLE = "SDL2 Lesson 1";
 
 int main(int argc, char *argv[])
 {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)
+  if (SDL_Init(SDL_INIT_VIDEO) != 0)
   {
     SDL_Log("SDL Init Error: %s", SDL_GetError());
 
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
   if (!window)
   {
-    SDL_Log("SDL window is null");
+    SDL_Log("SDL Create Window Error: %s", SDL_GetError());
     SDL_Quit();
 
     return 1;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
   if (!window)
   {
-    SDL_Log("SDL window is null");
+    SDL_Log("SDL Create Window Error: %s", SDL_GetError());
     SDL_Quit();
 
     return 1;
