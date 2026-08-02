@@ -1,5 +1,6 @@
-#include <SDL2/SDL.h>
 #include <stdbool.h>
+
+#include <SDL2/SDL.h>
 
 #ifdef PLATFORM_PS2
 #define SCREEN_WIDTH 640
@@ -9,7 +10,7 @@
 #else
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
-#define WINDOW_FLAGS SDL_WINDOW_SHOWN
+#define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 #define RENDERER_FLAGS SDL_RENDERER_ACCELERATED
 #endif
 
@@ -48,11 +49,6 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 1;
   }
-
-#ifndef PLATFORM_PS2
-  SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-#endif
 
   bool running = true;
 
