@@ -6,9 +6,13 @@
 #ifdef PLATFORM_PS2
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 448
+#define WINDOW_FLAGS 0
+#define RENDERER_FLAGS 0
 #else
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
+#define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+#define RENDERER_FLAGS SDL_RENDERER_ACCELERATED
 #endif
 
 const char *const WINDOW_TITLE = "SDL2 Lesson 3";
@@ -49,42 +53,21 @@ SDL_Texture *LoadImage(SDL_Renderer *renderer, const char *imagePath)
 
 int main(int argc, char *argv[])
 {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)
+  if (SDL_Init(SDL_INIT_VIDEO) != 0)
   {
     SDL_Log("SDL Init Error: %s", SDL_GetError());
 
-    return 1;
+    return -1;
   }
 
-#ifdef PLATFORM_PS2
-  SDL_Window *window = SDL_CreateWindow(
-      WINDOW_TITLE,
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT,
-      0);
-
-  if (!window)
+  if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
   {
-    SDL_Log("SDL window is null");
+    SDL_Log("SDL Image Init Error: %s\n", IMG_GetError());
+
     SDL_Quit();
 
-    return 1;
+    return -1;
   }
-
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-
-  if (!renderer)
-  {
-    SDL_Log("SDL Create Renderer Error: %s", SDL_GetError());
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
-    return 1;
-  }
-
-#else
 
   SDL_Window *window = SDL_CreateWindow(
       WINDOW_TITLE,
@@ -92,51 +75,41 @@ int main(int argc, char *argv[])
       SDL_WINDOWPOS_CENTERED,
       SCREEN_WIDTH,
       SCREEN_HEIGHT,
-      SDL_WINDOW_SHOWN);
+      WINDOW_FLAGS);
 
   if (!window)
   {
-    SDL_Log("SDL window is null");
+    SDL_Log("SDL Create Window Error: %s", SDL_GetError());
     SDL_Quit();
-
-    return 1;
+    return -1;
   }
 
-  SDL_Renderer *renderer = SDL_CreateRenderer(
-      window,
-      -1,
-      SDL_RENDERER_ACCELERATED);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, RENDERER_FLAGS);
 
   if (!renderer)
   {
     SDL_Log("SDL Create Renderer Error: %s", SDL_GetError());
     SDL_DestroyWindow(window);
     SDL_Quit();
-
-    return 1;
+    return -1;
   }
-
-  SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
-#endif
 
   SDL_Texture *fullHeartTexture = LoadBMP(renderer, "assets/heart-full.bmp");
-  if (!fullHeartTexture)
-    return -1;
+  SDL_Texture *emptyHeartTexture = LoadImage(renderer, "assets/heart-empty.png");
 
-  // LOAD PNG
-  SDL_Surface *emptyHeartSurface = IMG_Load("assets/heart-empty.png");
-  if (!emptyHeartSurface)
+  if (!fullHeartTexture || !emptyHeartTexture)
   {
-    SDL_Log("Failed to load image: %s", SDL_GetError());
+    SDL_DestroyTexture(fullHeartTexture);
+    SDL_DestroyTexture(emptyHeartTexture);
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+
+    IMG_Quit();
+    SDL_Quit();
 
     return -1;
   }
-
-  SDL_Texture *emptyHeartTexture = SDL_CreateTextureFromSurface(renderer, emptyHeartSurface);
-  SDL_FreeSurface(emptyHeartSurface);
 
   bool running = true;
 
@@ -170,6 +143,7 @@ int main(int argc, char *argv[])
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 
+  IMG_Quit();
   SDL_Quit();
 
   return 0;
