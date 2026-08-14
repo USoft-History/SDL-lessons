@@ -20,9 +20,12 @@
 
 [Lesson 2 — Basic 2D Rendering](Lesson%202%20-%20Basic%202D%20Rendering)
 
-[Lesson 3 — Input Handling](Lesson%203%20-%20Input%20Handling)
+[Lesson 3 - Textures and Images](Lesson%203%20-%20Textures%20and%20Images)
 
-[Lesson 4 — Textures and Images](Lesson%204%20-%20Textures%20and%20Images)
+[Lesson 4 - Font and Text](Lesson%204%20-%20Font%20and%20Text)
+
+[Lesson 5 - Input Handling](Lesson%205%20-%20Input%20Handling)
+
 
 # Ресурсы
 
