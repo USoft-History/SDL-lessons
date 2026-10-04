@@ -11,13 +11,18 @@
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
 #define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-#define RENDERER_FLAGS SDL_RENDERER_ACCELERATED
+#define RENDERER_FLAGS (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #endif
 
 const char *const WINDOW_TITLE = "SDL2 Lesson 1";
 
 int main(int argc, char *argv[])
 {
+
+  SDL_Window *window = NULL;
+  SDL_Renderer *renderer = NULL;
+  int exit_code = 0;
+
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
   {
     SDL_Log("SDL Init Error: %s", SDL_GetError());
@@ -25,7 +30,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  SDL_Window *window = SDL_CreateWindow(
+  window = SDL_CreateWindow(
       WINDOW_TITLE,
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
@@ -36,18 +41,19 @@ int main(int argc, char *argv[])
   if (!window)
   {
     SDL_Log("SDL Create Window Error: %s", SDL_GetError());
-    SDL_Quit();
-    return 1;
+
+    exit_code = 1;
+    goto cleanup;
   }
 
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, RENDERER_FLAGS);
+  renderer = SDL_CreateRenderer(window, -1, RENDERER_FLAGS);
 
   if (!renderer)
   {
     SDL_Log("SDL Create Renderer Error: %s", SDL_GetError());
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 1;
+
+    exit_code = 1;
+    goto cleanup;
   }
 
   bool running = true;
@@ -70,10 +76,18 @@ int main(int argc, char *argv[])
     SDL_RenderPresent(renderer);
   }
 
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+cleanup:
+  if (renderer)
+  {
+    SDL_DestroyRenderer(renderer);
+  }
+
+  if (window)
+  {
+    SDL_DestroyWindow(window);
+  }
 
   SDL_Quit();
 
-  return 0;
+  return exit_code;
 }
