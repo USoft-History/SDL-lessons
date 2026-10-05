@@ -14,17 +14,23 @@
 Курс ориентирован на начинающих разработчиков, которые хотят изучить SDL2 и познакомиться с разработкой Homebrew-приложений для PlayStation 2.
 
 # Содержание
-[Lesson 0 - Getting Started](Lesson%200%20-%20Getting%20Started)
+### [C](C)
+[Lesson 0 - Getting Started](C/Lesson%200%20-%20Getting%20Started)
 
-[Lesson 1 — Application Loop Fundamentals](Lesson%201%20-%20Application%20Loop%20Fundamentals)
+[Lesson 1 — Application Loop Fundamentals](C/Lesson%201%20-%20Application%20Loop%20Fundamentals)
 
-[Lesson 2 — Basic 2D Rendering](Lesson%202%20-%20Basic%202D%20Rendering)
+[Lesson 2 — Basic 2D Rendering](C/Lesson%202%20-%20Basic%202D%20Rendering)
 
-[Lesson 3 - Textures and Images](Lesson%203%20-%20Textures%20and%20Images)
+[Lesson 3 - Textures and Images](C/Lesson%203%20-%20Textures%20and%20Images)
 
-[Lesson 4 - Font and Text](Lesson%204%20-%20Font%20and%20Text)
+[Lesson 4 - Font and Text](C/Lesson%204%20-%20Font%20and%20Text)
 
-[Lesson 5 - Input Handling](Lesson%205%20-%20Input%20Handling)
+[Lesson 5 - Input Handling](C/Lesson%205%20-%20Input%20Handling)
+
+
+### [C++](CPP)
+
+----- IN PROGRESS -----
 
 
 # Ресурсы
