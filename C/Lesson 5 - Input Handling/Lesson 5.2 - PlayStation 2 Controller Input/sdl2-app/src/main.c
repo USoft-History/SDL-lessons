@@ -1,203 +1,114 @@
-#include <stdbool.h>
-
-#include <tamtypes.h>
+#ifdef PLATFORM_PS2
 #include <kernel.h>
 #include <sifrpc.h>
 #include <loadfile.h>
-#include <libpad.h>
+#include <iopheap.h>
+#include <sbv_patches.h>
+#endif
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-
-#include "text_label.h"
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 448
 
-typedef struct
-{
-  u16 code;
-  const char *name;
-} PadButtonInfo;
-
-static const char *const WINDOW_TITLE = "SDL2 Lesson 5.2";
-
-static u8 padBuf[256] __attribute__((aligned(64)));
-static struct padButtonStatus buttons;
-
-static const PadButtonInfo padButtons[] = {
-    {PAD_UP, "UP"},
-    {PAD_DOWN, "DOWN"},
-    {PAD_LEFT, "LEFT"},
-    {PAD_RIGHT, "RIGHT"},
-    {PAD_CROSS, "CROSS"},
-    {PAD_CIRCLE, "CIRCLE"},
-    {PAD_TRIANGLE, "TRIANGLE"},
-    {PAD_SQUARE, "SQUARE"},
-    {PAD_L1, "L1"},
-    {PAD_R1, "R1"},
-    {PAD_L2, "L2"},
-    {PAD_R2, "R2"},
-    {PAD_L3, "L3"},
-    {PAD_R3, "R3"},
-    {PAD_START, "START"},
-    {PAD_SELECT, "SELECT"},
-};
-
-static u16 previousBtns = 0;
-
-void initPadDrivers()
-{
-  SDL_Log("initPadDrivers()");
-  SifInitRpc(0);
-  SifLoadModule("rom0:SIO2MAN", 0, NULL);
-  SifLoadModule("rom0:PADMAN", 0, NULL);
-  padInit(0);
-  SDL_Log("initPadDrivers(): OK");
-}
-
-void pollEvent(TextLabel *label, SDL_Renderer *renderer)
-{
-  int state = padGetState(0, 0);
-
-  if (state != PAD_STATE_STABLE &&
-      state != PAD_STATE_FINDCTP1)
-  {
-    return;
-  }
-
-  if (padRead(0, 0, &buttons) > 0)
-  {
-
-    u16 btns = ~buttons.btns;
-    u16 pressed = btns & ~previousBtns;
-
-    previousBtns = btns;
-
-    for (size_t i = 0; i < sizeof(padButtons) / sizeof(padButtons[0]); i++)
-    {
-      if (pressed & padButtons[i].code)
-      {
-        char text[64];
-
-        snprintf(
-            text,
-            sizeof(text),
-            "Button: %s (0x%04X)",
-            padButtons[i].name,
-            padButtons[i].code);
-
-        TextLabel_SetText(label, renderer, text);
-
-        SDL_Log("%s", text);
-
-        break;
-      }
-    }
-  }
-}
+// SDL_PS2_SKIP_IOP_RESET();
 
 int main(int argc, char *argv[])
 {
-  initPadDrivers();
 
-  SDL_Log("try padPortOpen");
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+    SDL_Joystick *joystick = NULL;
 
-  if (!padPortOpen(0, 0, padBuf))
-  {
-    printf("padPortOpen failed\n");
-    return 1;
-  }
+    int exit_code = 0;
 
-  SDL_Log("padPortOpen: opened\n");
+#ifdef PLATFORM_PS2
+    SifInitRpc(0);
+    // SifLoadFileInit();
+    // SifInitIopHeap();
+    sbv_patch_enable_lmb();
+#endif
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0)
-  {
-    SDL_Log("SDL Init Error: %s", SDL_GetError());
+    SDL_Log("Before SDL_Init");
 
-    return 1;
-  }
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
+    {
+        return -1;
+    }
 
-  if (TTF_Init() == -1)
-  {
-    SDL_Log("TTF_Init FAILED: %s\n", TTF_GetError());
+    SDL_Log("After SDL_Init");
 
-    return 1;
-  }
+    window = SDL_CreateWindow("Joystick testing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
-  TTF_Font *smallFont = TTF_OpenFont("assets/font.ttf", 18);
-  if (!smallFont)
-  {
-    SDL_Log("TTF_OpenFont error: %s\n", TTF_GetError());
+    if (!window)
+    {
+        goto cleanup;
+    }
 
-    return 1;
-  }
+    renderer = SDL_CreateRenderer(window, -1, 0);
 
-  SDL_Window *window = SDL_CreateWindow(
-      WINDOW_TITLE,
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT,
-      0);
+    if (!renderer)
+    {
+        goto cleanup;
+    }
 
-  if (!window)
-  {
-    SDL_Log("SDL Create Window Error: %s", SDL_GetError());
+    SDL_Log("There are %d joysticks attached", SDL_NumJoysticks());
+
+    joystick = SDL_JoystickOpen(0);
+
+    if (!joystick)
+    {
+        SDL_Log("Couldn't open joystick %d: %s", 0, SDL_GetError());
+        goto cleanup;
+    }
+
+    int running = 1;
+
+    while (running)
+    {
+        SDL_Event event;
+
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type)
+            {
+            case SDL_QUIT:
+                running = 0;
+                break;
+            case SDL_JOYBUTTONDOWN:
+                SDL_Log("Joystick %d button %d down",
+                        event.jbutton.which,
+                        event.jbutton.button);
+                break;
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16); // ~60 FPS
+    }
+
+cleanup:
+
+    if (joystick)
+    {
+        SDL_JoystickClose(joystick);
+    }
+
+    if (renderer)
+    {
+        SDL_DestroyRenderer(renderer);
+    }
+
+    if (window)
+    {
+        SDL_DestroyWindow(window);
+    }
 
     SDL_Quit();
 
-    return 1;
-  }
-
-  SDL_Renderer *renderer = SDL_CreateRenderer(
-      window,
-      -1,
-      0);
-
-  if (!renderer)
-  {
-    SDL_Log("SDL Create Renderer Error: %s", SDL_GetError());
-
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
-    return 1;
-  }
-
-  TextLabels_Init(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-  TextLabel keyCodeLabel = {
-      .font = smallFont,
-      .color = {0, 255, 0, 255},
-      .text = "Key Code: 0",
-      .baseY = 20,
-      .align = TEXT_ALIGN_CENTER};
-
-  TextLabel_Create(&keyCodeLabel, renderer);
-
-  bool running = true;
-
-  while (running)
-  {
-    pollEvent(&keyCodeLabel, renderer);
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    TextLabel_Render(renderer, &keyCodeLabel);
-
-    SDL_RenderPresent(renderer);
-
-    SDL_Delay(16); // ~60 FPS
-  }
-
-  TextLabel_Destroy(&keyCodeLabel);
-
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-
-  SDL_Quit();
-
-  return 0;
+    return exit_code;
 }

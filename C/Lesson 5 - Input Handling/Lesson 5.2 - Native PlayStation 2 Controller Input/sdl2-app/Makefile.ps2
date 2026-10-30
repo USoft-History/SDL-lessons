@@ -1,0 +1,28 @@
+PS2DEV ?= /usr/local/ps2dev
+PS2SDK ?= $(PS2DEV)/ps2sdk
+
+export PATH := $(PATH):$(PS2DEV)/ee/bin
+
+EE_BIN = bin/game_ps2.elf
+
+EE_CFLAGS += -DPLATFORM_PS2
+
+EE_SRCS := $(wildcard src/*.c)
+EE_OBJS := $(EE_SRCS:.c=.o)
+
+EE_INCS += -I$(PS2SDK)/ports/include
+EE_INCS += -I$(PS2DEV)/gsKit/include
+
+EE_LDFLAGS += -L$(PS2SDK)/ports/lib
+EE_LDFLAGS += -L$(PS2DEV)/gsKit/lib
+
+EE_LIBS = -lSDL2_ttf -lfreetype -lpng -lz -lSDL2 -lps2_drivers \
+          -lgskit -ldmakit \
+          -laudsrv -lpadx -lmtap -lmouse \
+          -lfileXio -lpatches -ldebug
+
+include $(PS2SDK)/samples/Makefile.pref
+include $(PS2SDK)/samples/Makefile.eeglobal
+
+clean:
+	rm -f $(EE_BIN) $(EE_OBJS)
