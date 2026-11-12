@@ -92,6 +92,7 @@ void TextLabel_Render(SDL_Renderer *renderer, TextLabel *label)
 
 void TextLabel_Destroy(TextLabel *label)
 {
-    SDL_DestroyTexture(label->texture);
+    if (label && label->texture)
+        SDL_DestroyTexture(label->texture);
     label->texture = NULL;
 }
